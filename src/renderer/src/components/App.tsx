@@ -1,5 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import BackgroundShader from './BackgroundShader'
+import StopIcon from '../assets/icons/stop.svg'
+import StartIcon from '../assets/icons/start.svg'
+import RestartIcon from '../assets/icons/restart.svg'
+import SettingsIcon from '../assets/icons/settings.svg'
+import CloseIcon from '../assets/icons/close.svg'
+import TwentyFiveIcon from '../assets/icons/25icon.svg'
+import Settings from './Settings'
 
 const WORK_TIME = 25 * 60 // 25分
 const BREAK_TIME = 5 * 60 // 5分
@@ -9,10 +16,22 @@ export function App(): React.JSX.Element {
   const [timeLeft, setTimeLeft] = useState(WORK_TIME)
   const [isWork, setIsWork] = useState(true)
   const [isRunning, setIsRunning] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [bellEnabled, setBellEnabled] = useState(true)
+  const [musicEnabled, setMusicEnabled] = useState(true)
+  const [bellVolume, setBellVolume] = useState(1)
+  const [musicVolume, setMusicVolume] = useState(1)
+  const bgmRef = useRef<HTMLAudioElement | null>(null)
+  const workBgmUrl = new URL('../../../public/sounds/25.m4a', import.meta.url).href
+  const bellRef = useRef<HTMLAudioElement | null>(null)
+  const bellBgmUrl = new URL('../../../public/sounds/bell.m4a', import.meta.url).href
+  const breakRef = useRef<HTMLAudioElement | null>(null)
+  const breakBgmUrl = new URL('../../../public/sounds/break.m4a', import.meta.url).href
 
   // カウントダウン処理
   useEffect(() => {
     if (!isRunning) return
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -27,8 +46,83 @@ export function App(): React.JSX.Element {
     return () => clearInterval(timer)
   }, [isRunning, isWork])
 
-  const toggleTimer = useCallback(() => {
-    setIsRunning((prev) => !prev)
+  // 作業時間中のBGMを再生（ミュート/音量対応、残り5秒は停止）
+  useEffect(() => {
+    const audio = bgmRef.current
+    if (!audio) return
+    if (isRunning && isWork && timeLeft > 5 && musicEnabled) {
+      if (timeLeft === WORK_TIME) audio.currentTime = 0
+      audio.volume = musicVolume
+      audio.play().catch((err) => console.warn('BGM再生失敗:', err))
+    } else {
+      audio.pause()
+      audio.currentTime = 0
+    }
+  }, [isRunning, isWork, timeLeft, musicEnabled, musicVolume])
+
+  // 作業/休憩ともに残り5秒でベル音を再生（ミュート/音量対応）
+  useEffect(() => {
+    const bell = bellRef.current
+    if (!bell) return
+    if (isRunning && timeLeft === 5 && bellEnabled) {
+      bell.currentTime = 0
+      bell.volume = bellVolume
+      bell.play().catch((err) => console.warn('ベル再生失敗:', err))
+    }
+    // 残り5秒区間以外では停止・リセット
+    if (!(isRunning && timeLeft > 0 && timeLeft <= 5) || !bellEnabled) {
+      bell.pause()
+      bell.currentTime = 0
+    }
+  }, [isRunning, timeLeft, bellEnabled, bellVolume])
+
+  // 休憩時間中のBGMを再生（ミュート/音量対応、残り5秒は停止）
+  useEffect(() => {
+    const br = breakRef.current
+    if (!br) return
+    if (isRunning && !isWork && timeLeft > 5 && musicEnabled) {
+      if (timeLeft === BREAK_TIME) br.currentTime = 0
+      br.volume = musicVolume
+      br.play().catch((err) => console.warn('休憩BGM再生失敗:', err))
+    } else {
+      br.pause()
+      br.currentTime = 0
+    }
+  }, [isRunning, isWork, timeLeft, musicEnabled, musicVolume])
+
+  const handleStop = useCallback(() => {
+    setIsRunning(false)
+  }, [])
+
+  const handleStart = useCallback(() => {
+    if (timeLeft > 0) setIsRunning(true)
+  }, [timeLeft])
+
+  const handleRestart = useCallback(() => {
+    // 残り時間を0にリセットして即開始
+    setTimeLeft(0)
+    // 0なら次のtickで切り替わってしまうので、現在モードの開始に合わせて再設定
+    setTimeout(() => {
+      const target = isWork ? WORK_TIME : BREAK_TIME
+      setTimeLeft(target)
+      setIsRunning(true)
+    }, 0)
+  }, [isWork])
+
+  const handleSettings = useCallback(() => {
+    setIsSettingsOpen(!isSettingsOpen)
+  }, [isSettingsOpen])
+
+  const handleClose = useCallback(() => {
+    if (window.api && typeof window.api.close === 'function') {
+      window.api.close()
+      return
+    }
+    if (window.electron?.ipcRenderer) {
+      window.electron.ipcRenderer.send('close')
+      return
+    }
+    console.warn('Close API is not available in window')
   }, [])
 
   const minutes = Math.floor(timeLeft / 60)
@@ -40,8 +134,22 @@ export function App(): React.JSX.Element {
 
   return (
     <>
-      <div className="fixed inset-0 bg-[#00000000] z-30 mx-auto flex justify-center items-center">
-        <div className="relative w-[220px] h-[220px] z-10 mt-6 flex flex-col items-center justify-center text-[#E7E7E8]">
+      <div className="flex z-10 titlebar border-b border-white/10 w-full p-2">
+        <div>
+          <img src={TwentyFiveIcon} className="w-6 h-6" />
+        </div>
+        <div className="ml-auto flex items-center gap-2 app-no-drag">
+          <button onClick={handleSettings}>
+            <img src={SettingsIcon} alt="Settings" className="w-4 h-4" />
+          </button>
+          <button onClick={handleClose}>
+            <img src={CloseIcon} alt="Close" className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      <div className="fixed inset-0 bg-[#00000000] mx-auto flex justify-center items-center">
+        <div className="relative w-[220px] h-[220px] mt-6 flex flex-col items-center justify-center text-[#E7E7E8]">
+          {isRunning && timeLeft <= 5 && timeLeft > 0 && <CountdownOverlay number={timeLeft} />}
           <svg width="220" height="220" className="absolute mb-6">
             <circle
               cx="110"
@@ -70,20 +178,70 @@ export function App(): React.JSX.Element {
             {minutes}:{seconds}
           </div>
 
-          <button
-            onClick={toggleTimer}
-            className="px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition z-40"
-          >
-            {isRunning ? '■stop' : '▶start'}
-          </button>
+          {isRunning ? (
+            <button
+              onClick={handleStop}
+              className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition z-40"
+            >
+              <img src={StopIcon} alt="Stop" className="w-4 h-4" />
+            </button>
+          ) : (
+            <div className="mt-3 flex items-center gap-3 z-40">
+              <button
+                onClick={handleStart}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition"
+              >
+                <img src={StartIcon} alt="Start" className="w-4 h-4" />
+              </button>
+              <button
+                onClick={handleRestart}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition"
+              >
+                <img src={RestartIcon} alt="Restart" className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           <div className="mt-1 text-xs text-[#E7E7E8]">
             {isWork ? 'Work Session' : 'Break Time'}
           </div>
         </div>
       </div>
+      <audio ref={bgmRef} src={workBgmUrl} loop />
+      <audio ref={breakRef} src={breakBgmUrl} loop />
+      <audio ref={bellRef} src={bellBgmUrl} />
       <BackgroundShader />
+      {isSettingsOpen && (
+        <Settings
+          onClose={() => setIsSettingsOpen(false)}
+          bellEnabled={bellEnabled}
+          onToggleBell={() => setBellEnabled((v) => !v)}
+          bellVolume={bellVolume}
+          onChangeBellVolume={(v) => setBellVolume(v)}
+          musicEnabled={musicEnabled}
+          onToggleMusic={() => setMusicEnabled((v) => !v)}
+          musicVolume={musicVolume}
+          onChangeMusicVolume={(v) => setMusicVolume(v)}
+        />
+      )}
     </>
   )
 }
 
+interface Props {
+  number: number
+}
+
+function CountdownOverlay({ number }: Props): React.JSX.Element {
+  return (
+    <div
+      key={number} // number が変わるたびにアニメーションを再実行
+      className="absolute inset-0 flex items-center justify-center z-20
+                 text-7xl font-bold text-[#E7E7E8]
+                 animate-[countanimate_1s_ease-out_forwards]"
+    >
+      {number}
+    </div>
+  )
+}
 export default App

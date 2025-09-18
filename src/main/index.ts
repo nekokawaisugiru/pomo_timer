@@ -18,7 +18,7 @@ function createWindow(): void {
     width: 380,
     height: 480,
     transparent: true,
-    // frame: false,
+    frame: false,
     backgroundColor: '#00000000',
     show: false,
     autoHideMenuBar: true,
@@ -29,8 +29,11 @@ function createWindow(): void {
       nodeIntegration: false
     }
   })
-
+  mainWindow.webContents.on('preload-error', (_e, path, error) => {
+    console.error('[main] preload-error:', path, error)
+  })
   mainWindow.on('ready-to-show', () => {
+    mainWindow.setAlwaysOnTop(true)
     mainWindow.show()
   })
 
@@ -63,6 +66,10 @@ app.on('window-all-closed', () => {
 })
 
 // サンプル IPC（必要ならレンダラーから利用）
-ipcMain.on('ping', (event) => {
-  event.sender.send('pong')
+// ipcMain.on('ping', (event) => {
+//   event.sender.send('pong')
+// })
+
+ipcMain.on('close', () => {
+  app.quit()
 })

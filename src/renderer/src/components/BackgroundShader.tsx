@@ -190,7 +190,9 @@ export default function BackgroundShader(): React.JSX.Element {
   return (
     <canvas
       ref={canvasRef}
-      className={'inset-0 w-full h-full pointer-events-none z-0 bg-transparent'}
+      className={
+        'absolute top-0 left-0 inset-0 w-full h-full pointer-events-none -z-10 bg-transparent'
+      }
     />
   )
 }

@@ -1,12 +1,6 @@
 @import './base.css';
 
 body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  /* background-color: #E7E7E8; */
-  /* color: #3f3e3e; */
   user-select: none;
 }
 
@@ -31,7 +25,6 @@ code {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  margin-bottom: 80px;
 }
 
 .logo {
