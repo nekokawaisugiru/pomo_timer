@@ -8,14 +8,15 @@ import CloseIcon from '../assets/icons/close.svg'
 import TwentyFiveIcon from '../assets/icons/25icon.svg'
 import Settings from './Settings'
 
-const WORK_TIME = 25 * 60 // 25分
-const BREAK_TIME = 5 * 60 // 5分
-const CIRCUMFERENCE = 2 * Math.PI * 90 // 半径90の円の円周
-
 export function App(): React.JSX.Element {
-  const [timeLeft, setTimeLeft] = useState(WORK_TIME)
   const [isWork, setIsWork] = useState(true)
   const [isRunning, setIsRunning] = useState(false)
+  const [workDuration, setWorkDuration] = useState(25)
+  const [breakDuration, setBreakDuration] = useState(5)
+  const WORK_TIME = workDuration * 60 // 25分
+  const BREAK_TIME = breakDuration * 60 // 5分
+  const CIRCUMFERENCE = 2 * Math.PI * 90 // 半径90の円の円周
+  const [timeLeft, setTimeLeft] = useState(WORK_TIME)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [bellEnabled, setBellEnabled] = useState(true)
   const [musicEnabled, setMusicEnabled] = useState(true)
@@ -38,13 +39,13 @@ export function App(): React.JSX.Element {
           // 終了したら切替
           const nextIsWork = !isWork
           setIsWork(nextIsWork)
-          return nextIsWork ? WORK_TIME : BREAK_TIME
+          return nextIsWork ? workDuration * 60 : breakDuration * 60
         }
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [isRunning, isWork])
+  }, [isRunning, isWork, workDuration, breakDuration])
 
   // 作業時間中のBGMを再生（ミュート/音量対応、残り5秒は停止）
   useEffect(() => {
@@ -58,7 +59,7 @@ export function App(): React.JSX.Element {
       audio.pause()
       audio.currentTime = 0
     }
-  }, [isRunning, isWork, timeLeft, musicEnabled, musicVolume])
+  }, [isRunning, isWork, timeLeft, musicEnabled, musicVolume, WORK_TIME])
 
   // 作業/休憩ともに残り5秒でベル音を再生（ミュート/音量対応）
   useEffect(() => {
@@ -74,7 +75,7 @@ export function App(): React.JSX.Element {
       bell.pause()
       bell.currentTime = 0
     }
-  }, [isRunning, timeLeft, bellEnabled, bellVolume])
+  }, [isRunning, timeLeft, bellEnabled, bellVolume, WORK_TIME])
 
   // 休憩時間中のBGMを再生（ミュート/音量対応、残り5秒は停止）
   useEffect(() => {
@@ -88,7 +89,7 @@ export function App(): React.JSX.Element {
       br.pause()
       br.currentTime = 0
     }
-  }, [isRunning, isWork, timeLeft, musicEnabled, musicVolume])
+  }, [isRunning, isWork, timeLeft, musicEnabled, musicVolume, BREAK_TIME])
 
   const handleStop = useCallback(() => {
     setIsRunning(false)
@@ -107,7 +108,7 @@ export function App(): React.JSX.Element {
       setTimeLeft(target)
       setIsRunning(true)
     }, 0)
-  }, [isWork])
+  }, [isWork, WORK_TIME, BREAK_TIME])
 
   const handleSettings = useCallback(() => {
     setIsSettingsOpen(!isSettingsOpen)
@@ -129,7 +130,7 @@ export function App(): React.JSX.Element {
   const seconds = String(timeLeft % 60).padStart(2, '0')
 
   // 経過割合（0→1）と描画オフセット（開始時は全オフセット＝透明）
-  const totalTime = isWork ? WORK_TIME : BREAK_TIME
+  const totalTime = isWork ? workDuration * 60 : breakDuration * 60
   const strokeDashoffset = CIRCUMFERENCE * (timeLeft / totalTime)
 
   return (
@@ -214,6 +215,10 @@ export function App(): React.JSX.Element {
       {isSettingsOpen && (
         <Settings
           onClose={() => setIsSettingsOpen(false)}
+          workDuration={workDuration}
+          onChangeWorkDuration={(v) => setWorkDuration(v)}
+          breakDuration={breakDuration}
+          onChangeBreakDuration={(v) => setBreakDuration(v)}
           bellEnabled={bellEnabled}
           onToggleBell={() => setBellEnabled((v) => !v)}
           bellVolume={bellVolume}
@@ -222,6 +227,7 @@ export function App(): React.JSX.Element {
           onToggleMusic={() => setMusicEnabled((v) => !v)}
           musicVolume={musicVolume}
           onChangeMusicVolume={(v) => setMusicVolume(v)}
+          resetTimer={handleRestart}
         />
       )}
     </>
