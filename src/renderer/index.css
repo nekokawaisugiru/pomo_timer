@@ -9,3 +9,9 @@
 .app-no-drag {
   -webkit-app-region: no-drag;
 }
+
+.mask-image {
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}

@@ -37,6 +37,58 @@ function createProgram(
   return program
 }
 
+const colorCodes = [
+  `
+  vec3 color = mix(vec3(9.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), clamp((f * f) * 4.0, 0.0, 5.0));
+  color = mix(color, vec3(0.0, 0.0, 1.0), clamp(length(q), 0.0, 1.0));
+  color = mix(color, vec3(1.0, 1.0, 1.0), clamp(length(r.x), 0.0, 1.0));
+  `,
+  `
+  vec3 color = mix(vec3(3.02, 4.1, 5.26), vec3(0.01, 0.01, 0.50), clamp((f * f) * 0.0, 0.0, 1.0));
+  color = mix(color, vec3(0.0, 0.0, 0.2), clamp(length(q), 0.0, 1.0));
+  color = mix(color, vec3(0.2, 0.01, 0.0), clamp(length(r.x), 0.0, 1.0));
+  `,
+  `
+  vec3 color = mix(vec3(0.02, 0.01, 1.60), vec3(0.01, 0.01, 9.50), clamp((f * f) * 0.0, 0.0, 1.0));
+  color = mix(color, vec3(0.0, 1.0, 1.0), clamp(length(q), 0.0, 1.0));
+  color = mix(color, vec3(0.01, 0.01, 0.0), clamp(length(r.x), 0.0, 1.0));
+  `,
+  `
+  vec3 color = mix(vec3(17.50, 5.01, 0.03), vec3(0.80, 0.005, 0.01), clamp((f * f) * 0.02, 0.0, 0.02));
+  color = mix(color, vec3(0.0, 0.0, 1.0), clamp(length(q), 0.0, 1.0));
+  color = mix(color, vec3(1.0, 1.0, 1.0), clamp(length(r.x), 0.0, 1.0));
+  `,
+  `
+  vec3 color = mix(vec3(0.00, 0.00, 0.00), vec3(1.00, 1.00, 1.00), clamp((f * f) * 14.0, 0.0, 20.0));
+  color = mix(color, vec3(0.0, 1.0, 1.0), clamp(length(q), 0.0, 1.0));
+  color = mix(color, vec3(1.0, 0.0, 0.0), clamp(length(r.x), 0.0, 1.0));
+  `,
+  `
+  vec3 color = mix(vec3(0.59, 0.5, 0.39), vec3(0.80, 0.05, 0.01), clamp((f * f) * 0.01, 0.0, 0.0));
+  color = mix(color, vec3(0.0, 0.0, 1.0), clamp(length(q), 1.0, 1.0));
+  color = mix(color, vec3(1.0, 1.0, 1.0), clamp(length(r.x), 1.0, 1.0));
+  `,
+  `
+  vec3 color = mix(vec3(0.50, 0.20, 0.40), vec3(0.0, 1.0, 0.0), clamp((f * f) * 4.0, 0.0, 5.0));
+  color = mix(color, vec3(0.0, 0.0, 1.0), clamp(length(q), 0.0, 1.0));
+  color = mix(color, vec3(1.0, 1.0, 1.0), clamp(length(r.x), 0.0, 1.0));
+  `,
+  `
+  vec3 color = mix(vec3(0.2, 0.0, 4.40), vec3(2.02, 0.02, 5.00), clamp((f * f) * 0.1, 0.0, 1.0));
+  color = mix(color, vec3(0.0, 1.0, 1.0), clamp(length(q), 0.0, 1.0));
+  color = mix(color, vec3(1.0, 0.0, 0.0), clamp(length(r.x), 0.0, 1.0));
+  `,
+  `
+  vec3 color = mix(vec3(0.2, 0.04, 0.40), vec3(1.22, 0.01, 0.50), clamp((f * f) * 4.0, 0.0, 4.0));
+  color = mix(color, vec3(0.0, 1.0, 1.0), clamp(length(q), 0.0, 1.0));
+  color = mix(color, vec3(1.0, 0.0, 0.0), clamp(length(r.x), 0.0, 1.0));
+  `,
+  `
+  vec3 color = mix(vec3(0.00, 0.02, 10.00), vec3(0.02, 0.02, 1.00), clamp((f * f) * 4.0, 0.0, 20.0));
+  color = mix(color, vec3(0.0, 1.0, 1.0), clamp(length(q), 0.0, 1.0));
+  color = mix(color, vec3(1.0, 0.0, 0.0), clamp(length(r.x), 0.0, 1.0));
+  `
+]
 const VERT = `
 attribute vec2 a_position;
 void main() {
@@ -44,7 +96,27 @@ void main() {
 }
 `
 
-const FRAG = `
+function setCanvasSize(canvas: HTMLCanvasElement): void {
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1))
+  const width = Math.floor(window.innerWidth * dpr)
+  const height = Math.floor(window.innerHeight * dpr)
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width
+    canvas.height = height
+    canvas.style.width = window.innerWidth + 'px'
+    canvas.style.height = window.innerHeight + 'px'
+  }
+}
+
+export default function BackgroundShader({
+  colorIndex
+}: {
+  colorIndex: number
+}): React.JSX.Element {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const rafRef = useRef<number | null>(null)
+
+  const FRAG = `
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -93,29 +165,14 @@ void main(void) {
   r.x = fbm(p + 1.0 * q + vec2(1.2, 3.2) + 0.135 * time2);
   r.y = fbm(p + 1.0 * q + vec2(8.8, 2.8) + 0.126 * time2);
   float f = fbm(p + r);
-  vec3 color = mix(vec3(9.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), clamp((f * f) * 4.0, 0.0, 5.0));
-  color = mix(color, vec3(0.0, 0.0, 1.0), clamp(length(q), 0.0, 1.0));
-  color = mix(color, vec3(1.0, 1.0, 1.0), clamp(length(r.x), 0.0, 1.0));
+  ${colorCodes[colorIndex]}
+  // vec3 color = mix(vec3(9.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), clamp((f * f) * 4.0, 0.0, 5.0));
+  // color = mix(color, vec3(0.0, 0.0, 1.0), clamp(length(q), 0.0, 1.0));
+  // color = mix(color, vec3(1.0, 1.0, 1.0), clamp(length(r.x), 0.0, 1.0));
   color = (f * f * f + 0.6 * f * f + 0.9 * f) * color;
   gl_FragColor = vec4(color, 1.0);
 }
 `
-
-function setCanvasSize(canvas: HTMLCanvasElement): void {
-  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1))
-  const width = Math.floor(window.innerWidth * dpr)
-  const height = Math.floor(window.innerHeight * dpr)
-  if (canvas.width !== width || canvas.height !== height) {
-    canvas.width = width
-    canvas.height = height
-    canvas.style.width = window.innerWidth + 'px'
-    canvas.style.height = window.innerHeight + 'px'
-  }
-}
-
-export default function BackgroundShader(): React.JSX.Element {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const rafRef = useRef<number | null>(null)
 
   useEffect(() => {
     const canvasEl = canvasRef.current
@@ -185,7 +242,7 @@ export default function BackgroundShader(): React.JSX.Element {
       if (buffer) gl.deleteBuffer(buffer)
       if (program) gl.deleteProgram(program)
     }
-  }, [])
+  }, [FRAG])
 
   return (
     <canvas

@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import BackgroundShader from './BackgroundShader'
-import StopIcon from '../assets/icons/stop.svg'
-import StartIcon from '../assets/icons/start.svg'
-import RestartIcon from '../assets/icons/restart.svg'
-import SettingsIcon from '../assets/icons/settings.svg'
-import CloseIcon from '../assets/icons/close.svg'
-import TwentyFiveIcon from '../assets/icons/25icon.svg'
+
 import Settings from './Settings'
 
 export function App(): React.JSX.Element {
@@ -13,6 +8,7 @@ export function App(): React.JSX.Element {
   const [isRunning, setIsRunning] = useState(false)
   const [workDuration, setWorkDuration] = useState(25)
   const [breakDuration, setBreakDuration] = useState(5)
+  const [colorIndex, setColorIndex] = useState(0)
   const WORK_TIME = workDuration * 60 // 25分
   const BREAK_TIME = breakDuration * 60 // 5分
   const CIRCUMFERENCE = 2 * Math.PI * 90 // 半径90の円の円周
@@ -23,11 +19,8 @@ export function App(): React.JSX.Element {
   const [bellVolume, setBellVolume] = useState(1)
   const [musicVolume, setMusicVolume] = useState(1)
   const bgmRef = useRef<HTMLAudioElement | null>(null)
-  const workBgmUrl = new URL('../../../public/sounds/25.m4a', import.meta.url).href
   const bellRef = useRef<HTMLAudioElement | null>(null)
-  const bellBgmUrl = new URL('../../../public/sounds/bell.m4a', import.meta.url).href
   const breakRef = useRef<HTMLAudioElement | null>(null)
-  const breakBgmUrl = new URL('../../../public/sounds/break.m4a', import.meta.url).href
 
   // カウントダウン処理
   useEffect(() => {
@@ -114,6 +107,17 @@ export function App(): React.JSX.Element {
     setIsSettingsOpen(!isSettingsOpen)
   }, [isSettingsOpen])
 
+  const handleMinimize = useCallback(() => {
+    if (window.api && typeof window.api.minimize === 'function') {
+      window.api.minimize()
+      return
+    }
+    if (window.electron?.ipcRenderer) {
+      window.electron.ipcRenderer.send('minimize')
+      return
+    }
+  }, [])
+
   const handleClose = useCallback(() => {
     if (window.api && typeof window.api.close === 'function') {
       window.api.close()
@@ -137,14 +141,17 @@ export function App(): React.JSX.Element {
     <>
       <div className="flex z-10 titlebar border-b border-white/10 w-full p-2">
         <div>
-          <img src={TwentyFiveIcon} className="w-6 h-6" />
+          <img src="/icons/25icon.svg" className="w-6 h-6" />
         </div>
         <div className="ml-auto flex items-center gap-2 app-no-drag">
           <button onClick={handleSettings}>
-            <img src={SettingsIcon} alt="Settings" className="w-4 h-4" />
+            <img src="/icons/settings.svg" alt="Settings" className="w-4 h-4" />
+          </button>
+          <button onClick={handleMinimize}>
+            <img src="/icons/minimize.svg" alt="minimize" className="w-4 h-4" />
           </button>
           <button onClick={handleClose}>
-            <img src={CloseIcon} alt="Close" className="w-4 h-4" />
+            <img src="/icons/close.svg" alt="Close" className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -184,7 +191,7 @@ export function App(): React.JSX.Element {
               onClick={handleStop}
               className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition z-40"
             >
-              <img src={StopIcon} alt="Stop" className="w-4 h-4" />
+              <img src="/icons/stop.svg" alt="Stop" className="w-4 h-4" />
             </button>
           ) : (
             <div className="mt-3 flex items-center gap-3 z-40">
@@ -192,13 +199,13 @@ export function App(): React.JSX.Element {
                 onClick={handleStart}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition"
               >
-                <img src={StartIcon} alt="Start" className="w-4 h-4" />
+                <img src="/icons/start.svg" alt="Start" className="w-4 h-4" />
               </button>
               <button
                 onClick={handleRestart}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition"
               >
-                <img src={RestartIcon} alt="Restart" className="w-4 h-4" />
+                <img src="/icons/restart.svg" alt="Restart" className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -208,10 +215,10 @@ export function App(): React.JSX.Element {
           </div>
         </div>
       </div>
-      <audio ref={bgmRef} src={workBgmUrl} loop />
-      <audio ref={breakRef} src={breakBgmUrl} loop />
-      <audio ref={bellRef} src={bellBgmUrl} />
-      <BackgroundShader />
+      <audio ref={bgmRef} src={'/sounds/25.m4a'} loop />
+      <audio ref={breakRef} src={'/sounds/break.m4a'} loop />
+      <audio ref={bellRef} src={'/sounds/bell.m4a'} />
+      <BackgroundShader colorIndex={colorIndex} />
       {isSettingsOpen && (
         <Settings
           onClose={() => setIsSettingsOpen(false)}
@@ -228,6 +235,8 @@ export function App(): React.JSX.Element {
           musicVolume={musicVolume}
           onChangeMusicVolume={(v) => setMusicVolume(v)}
           resetTimer={handleRestart}
+          onChangeColorIndex={setColorIndex}
+          colorIndex={colorIndex}
         />
       )}
     </>

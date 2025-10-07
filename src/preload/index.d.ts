@@ -5,6 +5,7 @@ declare global {
     electron: ElectronAPI
     api: {
       close: () => void
+      minimize: () => void
     }
   }
 }

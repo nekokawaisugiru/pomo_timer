@@ -2,7 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 
 // Custom APIs for renderer
 const api = {
-  close: (): void => ipcRenderer.send('close')
+  close: (): void => ipcRenderer.send('close'),
+  minimize: (): void => ipcRenderer.send('minimize')
 }
 // Use `contextBridge` APIs to expose only our safe custom API
 if (process.contextIsolated) {
