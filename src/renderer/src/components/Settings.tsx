@@ -1,5 +1,6 @@
 import type React from 'react'
 import clsx from 'clsx'
+import { useEffect, useRef } from 'react'
 
 interface SettingsProps {
   onClose: () => void
@@ -38,19 +39,36 @@ function Settings({
   onChangeColorIndex,
   colorIndex
 }: SettingsProps): React.JSX.Element {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        onClose()
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [onClose])
+
   return (
     <div className="flex justify-center items-center w-full">
-      <div className="relative flex flex-col items-center justify-center w-[260px] h-[340px] bg-white/80 z-50  border-white/60 rounded-lg">
+      <div
+        ref={ref}
+        className="relative flex flex-col items-center justify-center w-[260px] h-[340px] bg-white/80 z-50  border-white/60 rounded-lg"
+      >
         <button
           onClick={onClose}
           className=" text-black  right-4 top-0 absolute hover:text-white z-10"
         >
           ×
         </button>
-        <div className="text-lg  text-black top-2 absolute px-4 mb-2">settings</div>
+        <div className="text-lg  text-[#726762] font-bold top-2 absolute px-4 mb-2">settings</div>
         <div className="px-4 w-full">
-          <div className="mt-1 w-full border-t border-black/80">
-            <span className="text-sm font-medium text-black mt-1">sounds</span>
+          <div className="mt-2 w-full border-t border-black/80">
+            <span className="text-sm font-medium text-black">sounds</span>
           </div>
 
           <div className="flex items-center mb-4 w-full gap-3">
@@ -108,7 +126,7 @@ function Settings({
             />
           </div>
           <div className="flex flex-col border-t border-black/80 mt-3">
-            <span className="mr-3 text-sm font-medium text-black">timer</span>
+            <span className="text-sm font-medium text-black">timer</span>
             <div className="flex items-center">
               <span className="text-sm font-light text-black">work:</span>
               <input
@@ -127,7 +145,7 @@ function Settings({
             </div>
           </div>
           <div className="flex flex-col mt-3 border-t border-black/80">
-            <span className="mr-3 text-sm font-medium text-black">color</span>
+            <span className="text-sm font-medium text-black">color</span>
             <div className="grid grid-cols-5 gap-2 w-40 ml-8">
               {Array.from({ length: 10 }).map((_, index) => (
                 <button
@@ -145,7 +163,7 @@ function Settings({
           </div>
           <button
             onClick={resetTimer}
-            className="ml-10 mt-4 w-28 p-[1px] rounded-full border-2 border-black text-black hover:bg-white/10 transition z-40"
+            className="mr-2 mt-4 w-28 p-[1px] rounded-full bg-[#726762] text-white hover:bg-[#726762]/80 transition z-40"
           >
             save
           </button>
