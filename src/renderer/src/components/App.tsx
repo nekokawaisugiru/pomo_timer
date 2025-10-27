@@ -14,10 +14,14 @@ export function App(): React.JSX.Element {
   const CIRCUMFERENCE = 2 * Math.PI * 90 // 半径90の円の円周
   const [timeLeft, setTimeLeft] = useState(WORK_TIME)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const [bellEnabled, setBellEnabled] = useState(true)
-  const [musicEnabled, setMusicEnabled] = useState(true)
+
   const [bellVolume, setBellVolume] = useState(1)
   const [musicVolume, setMusicVolume] = useState(1)
+  const [prevBellVolume, setPrevBellVolume] = useState(1)
+  const [prevMusicVolume, setPrevMusicVolume] = useState(1)
+
+  const bellEnabled = bellVolume > 0
+  const musicEnabled = musicVolume > 0
   const bgmRef = useRef<HTMLAudioElement | null>(null)
   const bellRef = useRef<HTMLAudioElement | null>(null)
   const breakRef = useRef<HTMLAudioElement | null>(null)
@@ -83,6 +87,15 @@ export function App(): React.JSX.Element {
       br.currentTime = 0
     }
   }, [isRunning, isWork, timeLeft, musicEnabled, musicVolume, BREAK_TIME])
+
+  const handleToggleBell = () => {
+    setPrevBellVolume(bellVolume)
+    setBellVolume(bellVolume > 0 ? 0 : prevBellVolume)
+  }
+  const handleToggleMusic = () => {
+    setPrevMusicVolume(musicVolume)
+    setMusicVolume(musicVolume > 0 ? 0 : prevMusicVolume)
+  }
 
   const handleStop = useCallback(() => {
     setIsRunning(false)
@@ -227,13 +240,19 @@ export function App(): React.JSX.Element {
           breakDuration={breakDuration}
           onChangeBreakDuration={(v) => setBreakDuration(v)}
           bellEnabled={bellEnabled}
-          onToggleBell={() => setBellEnabled((v) => !v)}
+          onToggleBell={handleToggleBell}
           bellVolume={bellVolume}
-          onChangeBellVolume={(v) => setBellVolume(v)}
+          onChangeBellVolume={(v) => {
+            setBellVolume(v)
+            if (v > 0) setPrevBellVolume(v)
+          }}
           musicEnabled={musicEnabled}
-          onToggleMusic={() => setMusicEnabled((v) => !v)}
+          onToggleMusic={handleToggleMusic}
           musicVolume={musicVolume}
-          onChangeMusicVolume={(v) => setMusicVolume(v)}
+          onChangeMusicVolume={(v) => {
+            setMusicVolume(v)
+            if (v > 0) setPrevMusicVolume(v)
+          }}
           resetTimer={handleRestart}
           onChangeColorIndex={setColorIndex}
           colorIndex={colorIndex}

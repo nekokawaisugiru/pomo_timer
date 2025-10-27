@@ -69,8 +69,8 @@ const colorCodes = [
   color = mix(color, vec3(1.0, 1.0, 1.0), clamp(length(r.x), 1.0, 1.0));
   `,
   `
-  vec3 color = mix(vec3(0.50, 0.20, 0.40), vec3(0.0, 1.0, 0.0), clamp((f * f) * 4.0, 0.0, 5.0));
-  color = mix(color, vec3(0.0, 0.0, 1.0), clamp(length(q), 0.0, 1.0));
+  vec3 color = mix(vec3(3.70, 1.20, 3.40), vec3(2.9, 1.2, 1.0), clamp((f * f) * 6.0, 0.0, 5.0));
+  color = mix(color, vec3(0.1, 0.0, 1.0), clamp(length(q), 0.0, 1.0));
   color = mix(color, vec3(1.0, 1.0, 1.0), clamp(length(r.x), 0.0, 1.0));
   `,
   `

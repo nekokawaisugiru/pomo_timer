@@ -66,13 +66,13 @@ function Settings({
           ×
         </button>
         <div className="text-lg  text-[#726762] font-bold top-2 absolute px-4 mb-2">settings</div>
-        <div className="px-4 w-full">
+        <div className="flex flex-col items-center justify-center px-4 w-full">
           <div className="mt-2 w-full border-t border-black/80">
-            <span className="text-sm font-medium text-black">sounds</span>
+            <span className="pl-5 text-sm font-medium text-black ">sounds</span>
           </div>
 
-          <div className="flex items-center mb-4 w-full gap-3">
-            <button onClick={onToggleBell} className="app-no-drag text-red">
+          <div className="flex items-center mb-4 w-50 gap-3">
+            <button onClick={onToggleBell} className="app-no-drag">
               {/* <img
                 src={bellEnabled ? BellIcon : BellOffIcon}
                 alt="bell"
@@ -99,7 +99,7 @@ function Settings({
             />
           </div>
 
-          <div className="flex items-center w-full gap-3">
+          <div className="flex items-center w-50 gap-3">
             <button onClick={onToggleMusic} className="app-no-drag">
               {/* <img
                 src={musicEnabled ? MusicIcon : MusicOffIcon}
@@ -146,14 +146,14 @@ function Settings({
           </div>
           <div className="flex flex-col mt-3 border-t border-black/80">
             <span className="text-sm font-medium text-black">color</span>
-            <div className="grid grid-cols-5 gap-2 w-40 ml-8">
+            <div className="grid grid-cols-5 gap-2 w-40 ml-5">
               {Array.from({ length: 10 }).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => onChangeColorIndex(index)}
                   className={clsx(
                     'w-6 h-6 rounded-full overflow-hidden',
-                    colorIndex === index ? 'border-2 border-black' : ''
+                    colorIndex === index ? 'border-2 border-white' : ''
                   )}
                 >
                   <img src={`/colors/color${index + 1}.jpg`} className="w-full h-full" />
@@ -162,7 +162,10 @@ function Settings({
             </div>
           </div>
           <button
-            onClick={resetTimer}
+            onClick={() => {
+              resetTimer()
+              onClose()
+            }}
             className="mr-2 mt-4 w-28 p-[1px] rounded-full bg-[#726762] text-white hover:bg-[#726762]/80 transition z-40"
           >
             save
