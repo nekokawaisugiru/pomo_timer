@@ -815,22 +815,6 @@ video {
 .ease-linear {
   transition-timing-function: linear;
 }
-.\[mask-image\:url\(\/icons\/bell-no\.svg\)\] {
-  -webkit-mask-image: url(../icons/bell-no.svg);
-          mask-image: url(../icons/bell-no.svg);
-}
-.\[mask-image\:url\(\/icons\/bell\.svg\)\] {
-  -webkit-mask-image: url(../icons/bell.svg);
-          mask-image: url(../icons/bell.svg);
-}
-.\[mask-image\:url\(\/icons\/music-no\.svg\)\] {
-  -webkit-mask-image: url(../icons/music-no.svg);
-          mask-image: url(../icons/music-no.svg);
-}
-.\[mask-image\:url\(\/icons\/music\.svg\)\] {
-  -webkit-mask-image: url(../icons/music.svg);
-          mask-image: url(../icons/music.svg);
-}
 
 .titlebar {
   -webkit-app-region: drag;

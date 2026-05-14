@@ -12271,6 +12271,11 @@ function clsx() {
   for (var e, t, f = 0, n = "", o = arguments.length; f < o; f++) (e = arguments[f]) && (t = r(e)) && (n && (n += " "), n += t);
   return n;
 }
+function publicUrl(path) {
+  const rel = path.startsWith("/") ? path.slice(1) : path;
+  const base = "./";
+  return base.endsWith("/") ? `${base}${rel}` : `${base}/${rel}`;
+}
 function Settings({
   onClose,
   workDuration,
@@ -12322,10 +12327,11 @@ function Settings({
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onToggleBell, className: "app-no-drag", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
-                className: clsx(
-                  "w-4 h-4 hover:opacity-80 mx-1 bg-[#585155] mask-image",
-                  bellEnabled ? "[mask-image:url(/icons/bell.svg)]" : "[mask-image:url(/icons/bell-no.svg)]"
-                )
+                className: "w-4 h-4 hover:opacity-80 mx-1 bg-[#585155] mask-image",
+                style: {
+                  maskImage: `url(${publicUrl(bellEnabled ? "icons/bell.svg" : "icons/bell-no.svg")})`,
+                  WebkitMaskImage: `url(${publicUrl(bellEnabled ? "icons/bell.svg" : "icons/bell-no.svg")})`
+                }
               }
             ) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -12345,10 +12351,11 @@ function Settings({
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onToggleMusic, className: "app-no-drag", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
-                className: clsx(
-                  "w-4 h-4 hover:opacity-80 mx-1 bg-[#585155] mask-image",
-                  musicEnabled ? "[mask-image:url(/icons/music.svg)]" : "[mask-image:url(/icons/music-no.svg)]"
-                )
+                className: "w-4 h-4 hover:opacity-80 mx-1 bg-[#585155] mask-image",
+                style: {
+                  maskImage: `url(${publicUrl(musicEnabled ? "icons/music.svg" : "icons/music-no.svg")})`,
+                  WebkitMaskImage: `url(${publicUrl(musicEnabled ? "icons/music.svg" : "icons/music-no.svg")})`
+                }
               }
             ) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -12399,7 +12406,7 @@ function Settings({
                   "w-6 h-6 rounded-full overflow-hidden",
                   colorIndex === index ? "border-2 border-white" : ""
                 ),
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: `/colors/color${index + 1}.jpg`, className: "w-full h-full" })
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: publicUrl(`colors/color${index + 1}.jpg`), className: "w-full h-full" })
               },
               index
             )) })
@@ -12543,11 +12550,11 @@ function App() {
   const strokeDashoffset = CIRCUMFERENCE * (timeLeft / totalTime);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex z-10 titlebar border-b border-white/10 w-full p-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/icons/25icon.svg", className: "w-6 h-6" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: publicUrl("icons/25icon.svg"), className: "w-6 h-6" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ml-auto flex items-center gap-2 app-no-drag", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSettings, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/icons/settings.svg", alt: "Settings", className: "w-4 h-4" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleMinimize, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/icons/minimize.svg", alt: "minimize", className: "w-4 h-4" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClose, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/icons/close.svg", alt: "Close", className: "w-4 h-4" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSettings, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: publicUrl("icons/settings.svg"), alt: "Settings", className: "w-4 h-4" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleMinimize, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: publicUrl("icons/minimize.svg"), alt: "minimize", className: "w-4 h-4" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClose, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: publicUrl("icons/close.svg"), alt: "Close", className: "w-4 h-4" }) })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-[#00000000] mx-auto flex justify-center items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-[220px] h-[220px] mt-6 flex flex-col items-center justify-center text-[#E7E7E8]", children: [
@@ -12592,7 +12599,7 @@ function App() {
         {
           onClick: handleStop,
           className: "mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition z-40",
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/icons/stop.svg", alt: "Stop", className: "w-4 h-4" })
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: publicUrl("icons/stop.svg"), alt: "Stop", className: "w-4 h-4" })
         }
       ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex items-center gap-3 z-40", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -12600,7 +12607,7 @@ function App() {
           {
             onClick: handleStart,
             className: "inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/icons/start.svg", alt: "Start", className: "w-4 h-4" })
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: publicUrl("icons/start.svg"), alt: "Start", className: "w-4 h-4" })
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -12608,15 +12615,15 @@ function App() {
           {
             onClick: handleRestart,
             className: "inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "/icons/restart.svg", alt: "Restart", className: "w-4 h-4" })
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: publicUrl("icons/restart.svg"), alt: "Restart", className: "w-4 h-4" })
           }
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-1 text-xs text-[#E7E7E8]", children: isWork ? "Work Session" : "Break Time" })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("audio", { ref: bgmRef, src: "/sounds/25.m4a", loop: true }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("audio", { ref: breakRef, src: "/sounds/break.m4a", loop: true }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("audio", { ref: bellRef, src: "/sounds/bell.m4a" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("audio", { ref: bgmRef, src: publicUrl("sounds/25.m4a"), loop: true }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("audio", { ref: breakRef, src: publicUrl("sounds/break.m4a"), loop: true }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("audio", { ref: bellRef, src: publicUrl("sounds/bell.m4a") }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(BackgroundShader, { colorIndex }),
     isSettingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
       Settings,
