@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import BackgroundShader from './BackgroundShader'
 
 import Settings from './Settings'
+import { publicUrl } from '../publicUrl'
 
 export function App(): React.JSX.Element {
   const [isWork, setIsWork] = useState(true)
@@ -154,17 +155,17 @@ export function App(): React.JSX.Element {
     <>
       <div className="flex z-10 titlebar border-b border-white/10 w-full p-2">
         <div>
-          <img src="/icons/25icon.svg" className="w-6 h-6" />
+          <img src={publicUrl('icons/25icon.svg')} className="w-6 h-6" />
         </div>
         <div className="ml-auto flex items-center gap-2 app-no-drag">
           <button onClick={handleSettings}>
-            <img src="/icons/settings.svg" alt="Settings" className="w-4 h-4" />
+            <img src={publicUrl('icons/settings.svg')} alt="Settings" className="w-4 h-4" />
           </button>
           <button onClick={handleMinimize}>
-            <img src="/icons/minimize.svg" alt="minimize" className="w-4 h-4" />
+            <img src={publicUrl('icons/minimize.svg')} alt="minimize" className="w-4 h-4" />
           </button>
           <button onClick={handleClose}>
-            <img src="/icons/close.svg" alt="Close" className="w-4 h-4" />
+            <img src={publicUrl('icons/close.svg')} alt="Close" className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -204,7 +205,7 @@ export function App(): React.JSX.Element {
               onClick={handleStop}
               className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition z-40"
             >
-              <img src="/icons/stop.svg" alt="Stop" className="w-4 h-4" />
+              <img src={publicUrl('icons/stop.svg')} alt="Stop" className="w-4 h-4" />
             </button>
           ) : (
             <div className="mt-3 flex items-center gap-3 z-40">
@@ -212,13 +213,13 @@ export function App(): React.JSX.Element {
                 onClick={handleStart}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition"
               >
-                <img src="/icons/start.svg" alt="Start" className="w-4 h-4" />
+                <img src={publicUrl('icons/start.svg')} alt="Start" className="w-4 h-4" />
               </button>
               <button
                 onClick={handleRestart}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[#E7E7E8] hover:bg-white/10 transition"
               >
-                <img src="/icons/restart.svg" alt="Restart" className="w-4 h-4" />
+                <img src={publicUrl('icons/restart.svg')} alt="Restart" className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -228,9 +229,9 @@ export function App(): React.JSX.Element {
           </div>
         </div>
       </div>
-      <audio ref={bgmRef} src={'/sounds/25.m4a'} loop />
-      <audio ref={breakRef} src={'/sounds/break.m4a'} loop />
-      <audio ref={bellRef} src={'/sounds/bell.m4a'} />
+      <audio ref={bgmRef} src={publicUrl('sounds/25.m4a')} loop />
+      <audio ref={breakRef} src={publicUrl('sounds/break.m4a')} loop />
+      <audio ref={bellRef} src={publicUrl('sounds/bell.m4a')} />
       <BackgroundShader colorIndex={colorIndex} />
       {isSettingsOpen && (
         <Settings

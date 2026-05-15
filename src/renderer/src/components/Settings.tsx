@@ -1,6 +1,7 @@
 import type React from 'react'
 import clsx from 'clsx'
 import { useEffect, useRef } from 'react'
+import { publicUrl } from '../publicUrl'
 
 interface SettingsProps {
   onClose: () => void
@@ -80,12 +81,11 @@ function Settings({
                 style={{ maskImage: 'url(/icons/bell.svg)' }}
               /> */}
               <div
-                className={clsx(
-                  'w-4 h-4 hover:opacity-80 mx-1 bg-[#585155] mask-image',
-                  bellEnabled
-                    ? '[mask-image:url(/icons/bell.svg)]'
-                    : '[mask-image:url(/icons/bell-no.svg)]'
-                )}
+                className="w-4 h-4 hover:opacity-80 mx-1 bg-[#585155] mask-image"
+                style={{
+                  maskImage: `url(${publicUrl(bellEnabled ? 'icons/bell.svg' : 'icons/bell-no.svg')})`,
+                  WebkitMaskImage: `url(${publicUrl(bellEnabled ? 'icons/bell.svg' : 'icons/bell-no.svg')})`
+                }}
               />
             </button>
             <input
@@ -107,12 +107,11 @@ function Settings({
                 className="w-4 h-4 hover:opacity-80 mx-1"
               /> */}
               <div
-                className={clsx(
-                  'w-4 h-4 hover:opacity-80 mx-1 bg-[#585155] mask-image',
-                  musicEnabled
-                    ? '[mask-image:url(/icons/music.svg)]'
-                    : '[mask-image:url(/icons/music-no.svg)]'
-                )}
+                className="w-4 h-4 hover:opacity-80 mx-1 bg-[#585155] mask-image"
+                style={{
+                  maskImage: `url(${publicUrl(musicEnabled ? 'icons/music.svg' : 'icons/music-no.svg')})`,
+                  WebkitMaskImage: `url(${publicUrl(musicEnabled ? 'icons/music.svg' : 'icons/music-no.svg')})`
+                }}
               />
             </button>
             <input
@@ -156,7 +155,7 @@ function Settings({
                     colorIndex === index ? 'border-2 border-white' : ''
                   )}
                 >
-                  <img src={`/colors/color${index + 1}.jpg`} className="w-full h-full" />
+                  <img src={publicUrl(`colors/color${index + 1}.jpg`)} className="w-full h-full" />
                 </button>
               ))}
             </div>
